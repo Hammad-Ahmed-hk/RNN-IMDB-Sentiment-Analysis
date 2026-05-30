@@ -1,0 +1,6 @@
+streamlit
+torch==2.2.0
+numpy
+pandas
+scikit-learn
+nltk
