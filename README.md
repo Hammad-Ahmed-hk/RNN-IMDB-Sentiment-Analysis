@@ -1,6 +1,6 @@
 # 🎬 CineRead — IMDB Sentiment Analysis
 
-> A professional-grade web application that analyzes movie review sentiments using a Recurrent Neural Network (RNN).
+> A Streamlit web app that classifies IMDB movie reviews as positive or negative using a PyTorch `nn.RNN` layer on TF-IDF features.
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0-EE4C2C?style=flat-square&logo=pytorch)
@@ -31,17 +31,19 @@
 
 ### The Model
 
-The core is a **Many-to-One RNN** implemented in PyTorch:
+A small PyTorch network (`SentimentRNN` in the notebook):
 
 ```
-Input (5,000 TF-IDF features)
+Input: 5,000 TF-IDF features, fed as a sequence of length 1
         ↓
-Hidden Layer (128 RNN units)
+nn.RNN (128 hidden units)
         ↓
-Output Layer (Sigmoid activation → probability score 0–1)
+Linear layer → Sigmoid → probability 0–1
         ↓
 Verdict: Positive / Negative
 ```
+
+> **Honest note on the architecture.** The whole review is turned into a single TF-IDF vector and given to the RNN as *one* time step. An RNN's strength is reading a sequence of words in order, and that does not happen here, so in practice this behaves like a one-hidden-layer feed-forward network on a bag-of-words. It is a perfectly valid sentiment baseline, but the "RNN" label overstates what it does. A true sequence model would tokenize each review into word indices, use an embedding layer, and feed those to an LSTM or GRU.
 
 ### The Pipeline
 
@@ -55,7 +57,7 @@ Raw Review Text
 ② Vectorization   →  TF-IDF (Term Frequency-Inverse Document Frequency)
       │
       ▼
-③ Inference       →  RNN processes tensor → Final Verdict
+③ Inference       →  Model scores the TF-IDF vector → Final Verdict
 ```
 
 ---
@@ -72,7 +74,7 @@ cd RNN-IMDB-Sentiment-Analysis
 ### 2. Install Dependencies
 
 ```bash
-pip install streamlit torch scikit-learn nltk numpy pandas
+pip install -r requirements.txt
 ```
 
 ### 3. Run the App
@@ -89,12 +91,12 @@ streamlit run app.py
 
 | Parameter | Value |
 |---|---|
-| **Dataset** | IMDB 50K Movie Reviews |
+| **Dataset** | [IMDB 50K Movie Reviews](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews) (`IMDB Dataset.csv`, about 63 MB, included) |
 | **Training Samples** | 40,000 |
 | **Testing Samples** | 10,000 |
 | **Optimizer** | Adam (`lr = 0.001`) |
 | **Loss Function** | Binary Cross Entropy (`BCELoss`) |
-| **Test Accuracy** | **87.62%** |
+| **Test Accuracy** | **87.62%** (reported by the author; the notebook has no saved output for this cell, so re-run it to confirm) |
 
 ---
 
